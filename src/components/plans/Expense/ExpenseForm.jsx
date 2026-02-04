@@ -91,11 +91,11 @@ const ExpenseForm = () => {
   };
 
   return (
-    <section className="container mx-auto p-6 bg-white shadow-lg rounded-lg mt-6">
+    <section className="container mx-auto p-6 bg-white shadow-lg rounded-lg mt-6 ">
       <h2 className="text-3xl font-semibold text-center text-gray-700">Record an Expense</h2>
       {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
-      <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-6">
+      <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-6 overflow-x-auto">
         <div>
           <label className="block text-lg font-medium text-gray-600">Amount</label>
           <input

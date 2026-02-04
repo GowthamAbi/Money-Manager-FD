@@ -25,14 +25,14 @@ export default function Add() {
 
       {modalType && (
         <div
-          className="fixed inset-0 bg-black/70 flex justify-center items-center pt-8"
+          className="fixed inset-1 bg-black/70 flex justify-center items-center overflow-x-auto "
           onClick={() => setModalType(null)}
         >
           <div
-            className="bg-white p-6 rounded-lg w-[450px]"
+            className="bg-white rounded-lg w-[650px] "
             onClick={(e) => e.stopPropagation()}
           >
-            {modalType === "expense" && <ExpenseForm />}
+            {modalType === "expense" && <div className="pt-32"> <ExpenseForm /></div>}
 
             {modalType === "income" && < IncomeForm/>}
 
