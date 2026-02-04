@@ -3,105 +3,279 @@ import api from "../../../services/api";
 
 const ExpenseList = () => {
   const [expenses, setExpenses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true); // ✅ Added loading state
 
-  // ✅ Fetch expenses on component mount
+  // Filters
+  const [filters, setFilters] = useState({
+    category: "All",
+    startDate: "",
+    endDate: "",
+  });
+
+  // Edit modal
+  const [editingExpense, setEditingExpense] = useState(null);
+
   useEffect(() => {
     fetchExpenses();
   }, []);
 
-  // ✅ Fetch Expenses from API
   const fetchExpenses = async () => {
     try {
       setLoading(true);
-      let token = localStorage.getItem("authToken");
-
-      if (!token) {
-        alert("Session expired. Please log in.");
-        window.location.href = "/login"; // Redirect to login
-        return;
-      }
+      const token = localStorage.getItem("authToken");
 
       const response = await api.get("/api/expenses", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setExpenses(response.data);
+      setExpenses(response.data || []);
     } catch (err) {
-      console.error("❌ Error fetching expenses:", err);
-      setError("Failed to load expenses.");
+      setError("Failed to load expenses");
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Handle Expense Deletion
+  // 🔒 12-hour rule
+  const canEditOrDelete = (createdAt) =>{
+        const now = new Date();
+    const createdTime = new Date(createdAt);
+    return now - createdTime <= 12 * 60 * 60 * 1000;
+  }
+
+  // 🗑 DELETE
   const handleDelete = async (id) => {
+    if (!window.confirm("Delete this expense?")) return;
+
     try {
       const token = localStorage.getItem("authToken");
-
-      if (!token) {
-        alert("Session expired. Please log in.");
-        window.location.href = "/login";
-        return;
-      }
-
-      const response = await api.delete(`/api/expenses/${id}`, {
+      await api.delete(`/api/expenses/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.status === 200) {
-        // ✅ Update UI by filtering out the deleted expense
-        setExpenses((prevExpenses) => prevExpenses.filter((expense) => expense._id !== id));
-        alert("Expense deleted successfully.");
-      }
+      setExpenses((prev) => prev.filter((e) => e._id !== id));
     } catch (err) {
-      console.error("❌ Error deleting expense:", err);
-      setError("Failed to delete expense.");
+      alert(err.response?.data?.message || "Delete failed");
     }
   };
 
-  return (
-    <section className="container mx-auto p-6 bg-white shadow-lg rounded-lg mt-8 max-w-4xl">
-      <h2 className="text-3xl font-semibold text-center text-gray-700">Expense List</h2>
+  // ✏ UPDATE
+  const handleUpdate = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
 
-      {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+      await api.put(
+        `/api/expenses/${editingExpense._id}`,
+        {
+          amount: editingExpense.amount,
+          category: editingExpense.category,
+          description: editingExpense.description,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setExpenses((prev) =>
+        prev.map((e) =>
+          e._id === editingExpense._id ? editingExpense : e
+        )
+      );
+
+      setEditingExpense(null);
+    } catch (err) {
+      alert(err.response?.data?.message || "Update failed");
+    }
+  };
+
+  // 🔍 FILTERING (DATE RANGE FIXED)
+  const filteredExpenses = expenses.filter((exp) => {
+    const categoryMatch =
+      filters.category === "All" ||
+      exp.category === filters.category;
+
+    const createdAt = new Date(exp.createdAt);
+
+    const startDate = filters.startDate
+      ? new Date(filters.startDate + "T00:00:00")
+      : null;
+
+    const endDate = filters.endDate
+      ? new Date(filters.endDate + "T23:59:59")
+      : null;
+
+    const startMatch = !startDate || createdAt >= startDate;
+    const endMatch = !endDate || createdAt <= endDate;
+
+    return categoryMatch && startMatch && endMatch;
+  });
+
+  return (
+    <section className="max-w-4xl mx-auto p-6 bg-white shadow rounded mt-8">
+      <h2 className="text-2xl font-bold text-center mb-4">
+        Expense List
+      </h2>
+
+      {/* Filters */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+        <select
+          className="border p-2"
+          value={filters.category}
+          onChange={(e) =>
+            setFilters({ ...filters, category: e.target.value })
+          }
+        >
+          <option value="All">All</option>
+          <option value="Groceries">Groceries</option>
+          <option value="Rent">Rent</option>
+          <option value="Utilities">Utilities</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <input
+          type="date"
+          className="border p-2"
+          value={filters.startDate}
+          onChange={(e) =>
+            setFilters({ ...filters, startDate: e.target.value })
+          }
+        />
+
+        <input
+          type="date"
+          className="border p-2"
+          value={filters.endDate}
+          onChange={(e) =>
+            setFilters({ ...filters, endDate: e.target.value })
+          }
+        />
+      </div>
+
+      <button
+        onClick={() =>
+          setFilters({ category: "All", startDate: "", endDate: "" })
+        }
+        className="border px-4 py-1 mb-4"
+      >
+        Reset Filters
+      </button>
 
       {loading ? (
-        <p className="text-center text-gray-500">Loading expenses...</p>
-      ) : expenses.length > 0 ? (
-        <table className="min-w-full table-auto text-left border border-gray-300">
-          <thead className="bg-gray-100">
+        <p className="text-center">Loading...</p>
+      ) : filteredExpenses.length ? (
+        <table className="w-full border">
+          <thead className="bg-gray-200">
             <tr>
-              <th className="px-4 py-2 border">Amount</th>
-              <th className="px-4 py-2 border">Category</th>
-              <th className="px-4 py-2 border">Description</th>
-              <th className="px-4 py-2 border">Date</th>
-              <th className="px-4 py-2 border">Action</th>
+              <th className="border p-2">Amount</th>
+              <th className="border p-2">Category</th>
+              <th className="border p-2">Description</th>
+              <th className="border p-2">Date</th>
+              <th className="border p-2">Edit</th>
+              <th className="border p-2">Delete</th>
             </tr>
           </thead>
           <tbody>
-            {expenses.map((expense) => (
-              <tr key={expense._id} className="border-b">
-                <td className="px-4 py-2 border">₹ {expense.amount}</td>
-                <td className="px-4 py-2 border">{expense.category}</td>
-                <td className="px-4 py-2 border">{expense.description}</td>
-                <td className="px-4 py-2 border">{new Date(expense.date).toLocaleDateString()}</td>
-                <td className="px-4 py-2 border">
-                  <button
-                    onClick={() => handleDelete(expense._id)}
-                    className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-700"
-                  >
-                    Remove
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {filteredExpenses.map((exp) => {
+              const allowed = canEditOrDelete(exp.createdAt);
+
+              return (
+                <tr key={exp._id} className="text-center">
+                  <td className="border p-2">₹{exp.amount}</td>
+                  <td className="border p-2">{exp.category}</td>
+                  <td className="border p-2">{exp.description}</td>
+                  <td className="border p-2">
+                    {new Date(exp.createdAt).toLocaleDateString()}
+                  </td>
+
+                  <td className="border p-2">
+                    {allowed ? (
+                      <button
+                        onClick={() => setEditingExpense({ ...exp })}
+                        className="text-blue-600"
+                      >
+                        Edit
+                      </button>
+                    ) : (
+                      <span className="text-gray-400">Locked</span>
+                    )}
+                  </td>
+
+                  <td className="border p-2">
+                    {allowed ? (
+                      <button
+                        onClick={() => handleDelete(exp._id)}
+                        className="text-red-600"
+                      >
+                        Delete
+                      </button>
+                    ) : (
+                      <span className="text-gray-400">Locked</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       ) : (
-        <p className="text-center text-gray-500">No expenses found</p>
+        <p className="text-center">No expenses found</p>
+      )}
+
+      {/* EDIT MODAL */}
+      {editingExpense && (
+        <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
+          <div className="bg-white p-6 rounded w-96">
+            <h3 className="font-bold mb-3">Edit Expense</h3>
+
+            <input
+              className="border p-2 w-full mb-2"
+              value={editingExpense.amount}
+              onChange={(e) =>
+                setEditingExpense({
+                  ...editingExpense,
+                  amount: e.target.value,
+                })
+              }
+            />
+
+            <input
+              className="border p-2 w-full mb-2"
+              value={editingExpense.category}
+              onChange={(e) =>
+                setEditingExpense({
+                  ...editingExpense,
+                  category: e.target.value,
+                })
+              }
+            />
+
+            <textarea
+              className="border p-2 w-full mb-2"
+              value={editingExpense.description}
+              onChange={(e) =>
+                setEditingExpense({
+                  ...editingExpense,
+                  description: e.target.value,
+                })
+              }
+            />
+
+            <div className="flex gap-2">
+              <button
+                onClick={handleUpdate}
+                className="bg-blue-500 text-white px-4 py-2"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setEditingExpense(null)}
+                className="border px-4 py-2"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </section>
   );

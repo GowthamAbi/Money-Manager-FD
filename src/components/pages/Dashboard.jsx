@@ -1,41 +1,88 @@
 import React, { useState, useEffect } from "react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import api from "../../services/api";
+import CategorySummary from "../plans/CategorySummary";
 
-const COLORS = ["#4CAF50", "#F44336", "#2196F3", "#FF9800"];
+const COLORS = ["#4CAF50", "#F44336"];
 
 const Dashboard = () => {
   const [totals, setTotals] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // ✅ NEW: period state
+  const [period, setPeriod] = useState("monthly"); // weekly | monthly | yearly
+
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
-      console.warn("⚠️ No token found. Redirecting to login...");
       window.location.href = "/login";
       return;
     }
-
     fetchDashboardData(token);
-  }, []);
+  }, [period]); // 🔥 refetch when dropdown changes
 
-  // ✅ Fetch Dashboard Data from Backend
+  // ✅ Date filter logic
+  const getStartDate = () => {
+    const now = new Date();
+
+    if (period === "weekly") {
+      now.setDate(now.getDate() - 7);
+    } else if (period === "monthly") {
+      now.setMonth(now.getMonth() - 1);
+    } else if (period === "yearly") {
+      now.setFullYear(now.getFullYear() - 1);
+    }
+
+    return now;
+  };
+
   const fetchDashboardData = async (token) => {
     try {
-      const responses = await Promise.all([
-        api.get("/api/income", { headers: { Authorization: `Bearer ${token}` } }),
-        api.get("/api/expenses", { headers: { Authorization: `Bearer ${token}` } }),
+      setLoading(true);
+      const startDate = getStartDate();
+
+      const [incomeRes, expenseRes] = await Promise.all([
+        api.get("/api/income", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        api.get("/api/expenses", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
       ]);
 
-      const incomeData = responses[0].data.reduce((acc, curr) => acc + curr.amount, 0);
-      const expenseData = responses[1].data.reduce((acc, curr) => acc + curr.amount, 0);
+      // ✅ FILTER BY DATE
+      const filteredIncome = incomeRes.data.filter(
+        (i) => new Date(i.createdAt) >= startDate
+      );
+      const filteredExpense = expenseRes.data.filter(
+        (e) => new Date(e.createdAt) >= startDate
+      );
 
+      const incomeTotal = filteredIncome.reduce(
+        (acc, curr) => acc + curr.amount,
+        0
+      );
 
-      setTotals({ income: incomeData, expense: expenseData,});
-    } catch (error) {
-      console.error("❌ Error fetching dashboard data:", error);
-      setError("Error loading dashboard data.");
+      const expenseTotal = filteredExpense.reduce(
+        (acc, curr) => acc + curr.amount,
+        0
+      );
+
+      setTotals({
+        income: incomeTotal,
+        expense: expenseTotal,
+        balance: incomeTotal - expenseTotal,
+      });
+    } catch (err) {
+      console.error(err);
+      setError("Error loading dashboard data");
     } finally {
       setLoading(false);
     }
@@ -50,49 +97,83 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Financial Dashboard</h2>
+      <h2 className="text-3xl font-bold text-center mb-4">
+        Financial Dashboard
+      </h2>
 
-      {error && <p className="text-red-500">❌ {error}</p>}
+      {/* ✅ DROPDOWN (REQUIRED BY PROBLEM STATEMENT) */}
+      <div className="flex justify-center mb-6">
+        <select
+          className="border p-2 rounded"
+          value={period}
+          onChange={(e) => setPeriod(e.target.value)}
+        >
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </div>
+
+      {error && <p className="text-red-500">{error}</p>}
       {loading ? (
-        <p className="text-gray-600">Loading...</p>
+        <p className="text-center">Loading...</p>
       ) : (
         <>
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Pie Chart for Financial Breakdown */}
-            <div className="p-4 bg-gray-100 rounded-lg shadow">
-              <h3 className="text-lg font-bold mb-2">Financial Breakdown</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie data={financialData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} fill="#8884d8" label>
-                    {financialData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-
+          {/* Chart */}
+          <div className="bg-gray-100 p-4 rounded mb-6">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={financialData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  label
+                >
+                  {financialData.map((_, index) => (
+                    <Cell
+                      key={index}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
 
-          {/* Financial Summary */}
-          <div className="bg-gray-100 p-6 rounded-lg mt-6 shadow">
-            <h3 className="text-xl font-bold">Financial Summary</h3>
-            {totals && (
-              <>
-                <p className="text-gray-700">
-                  Income: <strong className="text-green-600">₹{totals.income}</strong>
-                </p>
-                <p className="text-gray-700">
-                  Expense: <strong className="text-red-600">₹{totals.expense}</strong>
-                </p>
+          {/* ✅ SUMMARY (WITH BALANCE) */}
+          <div className="bg-gray-100 p-6 rounded">
+            <h3 className="text-xl font-bold mb-2">
+              Financial Summary ({period})
+            </h3>
 
-              </>
-            )}
+            <p>
+              Income:{" "}
+              <strong className="text-green-600">
+                ₹{totals.income}
+              </strong>
+            </p>
+
+            <p>
+              Expense:{" "}
+              <strong className="text-red-600">
+                ₹{totals.expense}
+              </strong>
+            </p>
+
+            <p>
+              Balance:{" "}
+              <strong className="text-blue-600">
+                ₹{totals.balance}
+              </strong>
+            </p>
           </div>
         </>
       )}
+      <CategorySummary period={period} />
     </div>
   );
 };
