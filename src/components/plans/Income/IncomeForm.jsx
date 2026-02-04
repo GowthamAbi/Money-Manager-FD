@@ -4,8 +4,10 @@ import api from "../../../services/api";
 const IncomeForm = ({ onIncomeAdded }) => {
   const [income, setIncome] = useState({
     source: "",
-    amount: "",
+    category: "",
     date: "",
+    division:"",
+    description:""
   });
 
   const [error, setError] = useState("");
@@ -18,7 +20,7 @@ const IncomeForm = ({ onIncomeAdded }) => {
     e.preventDefault();
     setError("");
 
-    if (!income.source || !income.amount || !income.date) {
+    if (!income.category || !income.amount || !income.date || !income.description || !income.division) {
       setError("All fields are required.");
       return;
     }
@@ -37,7 +39,7 @@ const IncomeForm = ({ onIncomeAdded }) => {
       });
 
       if (response.status === 201) {
-        setIncome({ source: "", amount: "", date: "" });
+        setIncome({  amount: "", date: "",category:"",division:"",description:""  });
         onIncomeAdded(); // Notify parent to refresh list
       }
     } catch (error) {
@@ -54,10 +56,10 @@ const IncomeForm = ({ onIncomeAdded }) => {
       <form onSubmit={handleSubmit} className="space-y-3">
         <input
           type="text"
-          name="source"
-          value={income.source}
+          name="category"
+          value={income.category}
           onChange={handleChange}
-          placeholder="Income Source"
+          placeholder="Income category"
           className="border p-2 w-full"
         />
         <input
@@ -68,6 +70,25 @@ const IncomeForm = ({ onIncomeAdded }) => {
           placeholder="Amount ($)"
           className="border p-2 w-full"
         />
+
+        <input
+          type="text"
+          name="division"
+          value={income.division}
+          onChange={handleChange}
+          placeholder="Income division"
+          className="border p-2 w-full"
+        />
+
+        <input
+          type="text"
+          name="description"
+          value={income.description}
+          onChange={handleChange}
+          placeholder="Income description"
+          className="border p-2 w-full"
+        />
+        
         <input
           type="date"
           name="date"

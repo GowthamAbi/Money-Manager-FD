@@ -13,6 +13,7 @@ import IncomeReports from "./components/plans/Income/IncomeReports";
 import FinancialReports from "./components/plans/Report/FinancialReports";
 
 import AccountSummary from "./components/pages/AccountSummary";
+import Add from "./components/plans/HomePage/Add";
 
 const Login = lazy(() => import("./components/pages/Login"));
 const Register = lazy(() => import("./components/pages/Register"));
@@ -53,6 +54,13 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/account-summary" element={<AccountSummary />} />
 
+              
+              {/* Add Routes */}
+              <Route path="/home/add" element={<Add/>} />
+              <Route path="/expense/list" element={<ExpenseList />} />
+              <Route path="/expense/chart" element={<ExpenseCategorization />} />
+              
+              
               {/* Expense Routes */}
               <Route path="/expense/recording" element={<ExpenseRecording />} />
               <Route path="/expense/list" element={<ExpenseList />} />

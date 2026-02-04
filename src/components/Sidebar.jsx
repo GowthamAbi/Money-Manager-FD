@@ -26,6 +26,23 @@ const Sidebar = () => {
       <h2 className="text-xl font-bold mb-4 cursor-pointer" onClick={() => navigate("/dashboard")}>Dashboard</h2>
       <ul className="space-y-2">
 
+        {/* Home Section */}
+        <li>
+          <button onClick={() => toggleSection("home")} className="w-full flex items-center justify-between p-2 hover:bg-gray-700 rounded">
+            <span className="flex items-center gap-2">
+              <FaClipboardList /> Home
+            </span>
+            <span>{openSections.home? "▲" : "▼"}</span>
+          </button>
+          {openSections.home && (
+            <ul className="pl-6 space-y-1">
+              <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={() => navigate("/home/add")}>Add</li>
+
+
+            </ul>
+          )}
+        </li>
+
         {/* Expense Section */}
         <li>
           <button onClick={() => toggleSection("expense")} className="w-full flex items-center justify-between p-2 hover:bg-gray-700 rounded">
