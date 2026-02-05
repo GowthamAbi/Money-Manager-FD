@@ -86,7 +86,7 @@ const ExpenseForm = () => {
   };
 
   return (
-    <section className="container mx-auto p-6 bg-white shadow-lg rounded-lg mt-6 ">
+    <section className="container mx-auto p-6 bg-white shadow-lg rounded-lg mt-32 ">
       <h2 className="text-3xl font-semibold text-center text-gray-700">Record an Expense</h2>
       {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
