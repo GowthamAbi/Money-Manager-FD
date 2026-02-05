@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Set base URL dynamically using environment variables
 const api = axios.create({
-  baseURL:"http://localhost:5000",
+  baseURL:"https://money-managers-bd.onrender.com",
   headers: {
     "Content-Type": "application/json",
   },
