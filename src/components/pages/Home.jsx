@@ -6,7 +6,7 @@ const Home = () => {
     <div className="w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-400 to-indigo-600 text-white text-center p-6">
       <h1 className="text-5xl font-extrabold mb-4 animate-fadeIn">Welcome to <span className="text-yellow-300">Finance Tracker</span></h1>
       <p className="text-lg text-gray-200 mb-6 max-w-2xl animate-fadeIn delay-200">
-        Take control of your finances with our intuitive budgeting, expense tracking, and financial planning tools.
+        Take control of your finances with our expense tracking, and financial planning tools.
       </p>
       <div className="flex space-x-6 animate-slideUp delay-400">
         <Link to="/login" className="bg-yellow-400 text-blue-900 font-semibold px-6 py-3 rounded-lg shadow-lg transform transition hover:scale-110 hover:bg-yellow-500">
