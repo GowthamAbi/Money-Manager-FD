@@ -184,7 +184,7 @@ const ExpenseList = () => {
                   <td className="border p-2">{exp.category}</td>
                   <td className="border p-2">{exp.description}</td>
                   <td className="border p-2">
-                    {new Date(exp.createdAt).toLocaleDateString()}
+                    {new Date(exp.date).toLocaleDateString()}
                   </td>
 
                   <td className="border p-2">

@@ -244,7 +244,7 @@ const filteredIncome = income.filter((inc) => {
                   <td className="border p-2">{inc.description}</td>
                   <td className="border p-2">
                     {new Date(
-                      inc.date || inc.createdAt
+                      inc.date
                     ).toLocaleDateString()}
                   </td>
 
@@ -257,7 +257,7 @@ const filteredIncome = income.filter((inc) => {
                         Edit
                       </button>
                     ) : (
-                      <span className="text-gray-400">Edit</span>
+                      <span className="text-gray-400">Locked</span>
                     )}
                   </td>
 
@@ -270,7 +270,7 @@ const filteredIncome = income.filter((inc) => {
                         Delete
                       </button>
                     ) : (
-                      <span className="text-gray-400">Delete</span>
+                      <span className="text-gray-400">Locked</span>
                     )}
                   </td>
                 </tr>

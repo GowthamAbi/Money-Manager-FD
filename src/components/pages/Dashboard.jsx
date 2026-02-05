@@ -16,7 +16,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // ✅ NEW: period state
+  // period filter
   const [period, setPeriod] = useState("monthly"); // weekly | monthly | yearly
 
   useEffect(() => {
@@ -26,11 +26,12 @@ const Dashboard = () => {
       return;
     }
     fetchDashboardData(token);
-  }, [period]); // 🔥 refetch when dropdown changes
+  }, [period]);
 
-  // ✅ Date filter logic
+  // 🔹 calculate start date based on period
   const getStartDate = () => {
     const now = new Date();
+    now.setHours(0, 0, 0, 0);
 
     if (period === "weekly") {
       now.setDate(now.getDate() - 7);
@@ -46,6 +47,8 @@ const Dashboard = () => {
   const fetchDashboardData = async (token) => {
     try {
       setLoading(true);
+      setError(null);
+
       const startDate = getStartDate();
 
       const [incomeRes, expenseRes] = await Promise.all([
@@ -57,21 +60,28 @@ const Dashboard = () => {
         }),
       ]);
 
-      // ✅ FILTER BY DATE
-      const filteredIncome = incomeRes.data.filter(
-        (i) => new Date(i.createdAt) >= startDate
-      );
-      const filteredExpense = expenseRes.data.filter(
-        (e) => new Date(e.createdAt) >= startDate
-      );
+      // ✅ FILTER USING ACTUAL INPUT DATE (NOT createdAt)
+      const filteredIncome = incomeRes.data.filter((i) => {
+        if (!i.date) return false;
+        const d = new Date(i.date);
+        d.setHours(0, 0, 0, 0);
+        return d >= startDate;
+      });
+
+      const filteredExpense = expenseRes.data.filter((e) => {
+        if (!e.date) return false;
+        const d = new Date(e.date);
+        d.setHours(0, 0, 0, 0);
+        return d >= startDate;
+      });
 
       const incomeTotal = filteredIncome.reduce(
-        (acc, curr) => acc + curr.amount,
+        (sum, item) => sum + item.amount,
         0
       );
 
       const expenseTotal = filteredExpense.reduce(
-        (acc, curr) => acc + curr.amount,
+        (sum, item) => sum + item.amount,
         0
       );
 
@@ -101,7 +111,7 @@ const Dashboard = () => {
         Financial Dashboard
       </h2>
 
-      {/* ✅ DROPDOWN (REQUIRED BY PROBLEM STATEMENT) */}
+      {/* Period Dropdown */}
       <div className="flex justify-center mb-6">
         <select
           className="border p-2 rounded"
@@ -114,7 +124,8 @@ const Dashboard = () => {
         </select>
       </div>
 
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-red-500 text-center">{error}</p>}
+
       {loading ? (
         <p className="text-center">Loading...</p>
       ) : (
@@ -144,7 +155,7 @@ const Dashboard = () => {
             </ResponsiveContainer>
           </div>
 
-          {/* ✅ SUMMARY (WITH BALANCE) */}
+          {/* Summary */}
           <div className="bg-gray-100 p-6 rounded">
             <h3 className="text-xl font-bold mb-2">
               Financial Summary ({period})
@@ -173,6 +184,8 @@ const Dashboard = () => {
           </div>
         </>
       )}
+
+      {/* Category Summary */}
       <CategorySummary period={period} />
     </div>
   );
