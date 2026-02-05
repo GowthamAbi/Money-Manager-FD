@@ -37,14 +37,14 @@ const ExpenseList = () => {
     }
   };
 
-  // 🔒 12-hour rule
+  //  12-hour rule
   const canEditOrDelete = (createdAt) =>{
         const now = new Date();
     const createdTime = new Date(createdAt);
     return now - createdTime <= 12 * 60 * 60 * 1000;
   }
 
-  // 🗑 DELETE
+  //  DELETE
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this expense?")) return;
 
@@ -60,7 +60,7 @@ const ExpenseList = () => {
     }
   };
 
-  // ✏ UPDATE
+  //  UPDATE
   const handleUpdate = async () => {
     try {
       const token = localStorage.getItem("authToken");
@@ -87,7 +87,7 @@ const ExpenseList = () => {
     }
   };
 
-  // 🔍 FILTERING (DATE RANGE FIXED)
+  //  FILTERING (DATE RANGE FIXED)
   const filteredExpenses = expenses.filter((exp) => {
     const categoryMatch =
       filters.category === "All" ||

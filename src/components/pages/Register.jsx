@@ -52,7 +52,7 @@ const Register = () => {
                 <input
                   type="text"
                   name="name"
-                  id="name"  // Fixed this from "Name" to "name"
+                  id="name"  
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required

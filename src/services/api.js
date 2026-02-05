@@ -24,13 +24,13 @@ api.interceptors.request.use(
 
 // Add response interceptor to handle global errors
 api.interceptors.response.use(
-  (response) => response, // Pass through successful responses
+  (response) => response,
   (error) => {
     if (error.response) {
       if (error.response.status === 401) {
         console.error("Unauthorized! Redirecting to login...");
-        localStorage.removeItem("authToken"); // Remove expired/invalid token
-        window.location.href = "/login"; // Redirect to login page
+        localStorage.removeItem("authToken"); 
+        window.location.href = "/login"; 
       }
     }
     return Promise.reject(error);

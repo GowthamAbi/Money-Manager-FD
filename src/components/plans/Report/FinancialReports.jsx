@@ -8,7 +8,6 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import api from "../../../services/api";
 
-// Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, LineElement, PointElement);
 
 const FinancialReports = () => {
@@ -48,7 +47,7 @@ const FinancialReports = () => {
     }
   };
 
-  // ✅ Export to CSV
+  //  Export to CSV
   const exportToCSV = () => {
     const allData = [
       ...expenses.map((e) => ({ Type: "Expense", Category: e.category, Amount: e.amount })),
@@ -65,7 +64,7 @@ const FinancialReports = () => {
     saveAs(dataBlob, "Financial_Reports.xlsx");
   };
 
-  // ✅ Export to PDF
+  //  Export to PDF
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.text("Financial Reports", 14, 15);

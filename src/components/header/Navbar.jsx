@@ -9,12 +9,12 @@ const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [profilePic, setProfilePic] = useState(
     "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-  ); // Default profile pic
+  ); 
 
   const profileMenuRef = useRef(null);
   const profilePicRef = useRef(null);
 
-  // ✅ Fetch Profile Picture from Database
+  //  Fetch Profile Picture from Database
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -27,7 +27,7 @@ const Navbar = () => {
     fetchProfile();
   }, []);
 
-  // ✅ Close Profile Menu When Clicking Outside
+  // Close Profile Menu When Clicking Outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -36,7 +36,7 @@ const Navbar = () => {
         profilePicRef.current &&
         !profilePicRef.current.contains(event.target)
       ) {
-        setIsProfileOpen(false); // ✅ Close the menu when clicking outside
+        setIsProfileOpen(false)
       }
     };
 
@@ -47,11 +47,11 @@ const Navbar = () => {
     }
 
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isProfileOpen]); // ✅ Depend on isProfileOpen so it properly removes the event listener
+  }, [isProfileOpen]); 
 
   return (
     <nav className="bg-gradient-to-r from-blue-700 to-indigo-700 text-white p-4 flex justify-between items-center w-full fixed top-0 left-0 z-40 shadow-lg backdrop-blur-md bg-opacity-80">
-      {/* ✅ Logo Section */}
+      {/*  Logo Section */}
       <div
         className="text-2xl font-extrabold cursor-pointer hover:text-gray-200 transition-all duration-300"
         onClick={() => navigate("/dashboard")}
@@ -59,7 +59,7 @@ const Navbar = () => {
         Finance Manager
       </div>
 
-      {/* ✅ Notification & Profile */}
+      {/*  Notification & Profile */}
       <div className="flex items-center space-x-6 relative">
         <NotificationBell />
         <div className="relative">
@@ -67,10 +67,10 @@ const Navbar = () => {
             src={profilePic}
             alt="Profile"
             className="w-10 h-10 rounded-full cursor-pointer border-2 border-white shadow-md hover:scale-110 transition-all duration-300"
-            onClick={() => setIsProfileOpen((prev) => !prev)} // ✅ Clicking toggles the menu correctly
+            onClick={() => setIsProfileOpen((prev) => !prev)}
             ref={profilePicRef}
           />
-          {/* ✅ Smooth Dropdown Animation */}
+          {/*  Smooth Dropdown Animation */}
           {isProfileOpen && (
             <div ref={profileMenuRef} className="absolute right-0 mt-2 w-40 bg-white text-black rounded-lg shadow-lg">
               <ProfileMenu setIsProfileOpen={setIsProfileOpen} />

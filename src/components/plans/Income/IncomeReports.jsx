@@ -6,7 +6,7 @@ const IncomeReports = () => {
   const [refresh, setRefresh] = useState(false);
 
   const handleIncomeAdded = () => {
-    setRefresh((prev) => !prev); // Toggle state to trigger re-fetch
+    setRefresh((prev) => !prev); 
   };
 
   return (

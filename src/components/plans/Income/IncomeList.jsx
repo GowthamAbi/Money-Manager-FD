@@ -46,14 +46,14 @@ const IncomeList = ({ refresh }) => {
     }
   };
 
-  // 🔒 12-hour rule
+  //  12-hour rule
   const canEditOrDelete = (createdAt) => {
     const now = new Date();
     const createdTime = new Date(createdAt);
     return now - createdTime <= 12 * 60 * 60 * 1000;
   };
 
-  // 🗑️ DELETE
+  //  DELETE
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this income?")) return;
 
@@ -69,7 +69,7 @@ const IncomeList = ({ refresh }) => {
     }
   };
 
-  // ✏️ UPDATE
+  //  UPDATE
   const handleUpdate = async () => {
     try {
       const token = localStorage.getItem("authToken");
@@ -98,7 +98,7 @@ const IncomeList = ({ refresh }) => {
     }
   };
 
-  // 🔍 Filtering
+  //  Filtering
 const filteredIncome = income.filter((inc) => {
   const createdAt = new Date(inc.createdAt);
 
@@ -210,7 +210,7 @@ const filteredIncome = income.filter((inc) => {
 />
 
 
-        {/* 🔹 Reset Filters */} 
+        {/*  Reset Filters */} 
         <button onClick={() => setFilters({ category: "All", source: "", minAmount: "", maxAmount: "", startDate: "", endDate: "", }) } 
         className="border px-4 py-2 rounded mb-4" > Reset Filters </button>
       </div>

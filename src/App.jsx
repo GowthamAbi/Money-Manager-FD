@@ -28,7 +28,7 @@ const Loading = () => (
 
 const App = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
-  const location = useLocation(); // Get current page path
+  const location = useLocation(); 
 
   // Hide Sidebar on Home, Login & Register pages
   const shouldShowSidebar = !["/login", "/register", "/"].includes(location.pathname);
@@ -71,7 +71,7 @@ const App = () => {
               <Route path="/income/list" element={<IncomeList />} />
               <Route path="/income/report" element={<IncomeReports />} />
 
-              {/* Reports & Due Bills */}
+              {/* Reports */}
               <Route path="/financialReports" element={<FinancialReports />} />
             </Routes>
           </Suspense>

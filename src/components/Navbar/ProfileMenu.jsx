@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const ProfileMenu = ({ setIsProfileOpen }) => {
   const navigate = useNavigate();
-  const userToken = localStorage.getItem('authToken'); // Assuming user is logged in if this exists
+  const userToken = localStorage.getItem('authToken');
 
   const handleClick = (route) => {
     setIsProfileOpen(false);
@@ -11,7 +11,7 @@ const ProfileMenu = ({ setIsProfileOpen }) => {
   };
 
   const logout = () => {
-    localStorage.clear(); // Clear user data
+    localStorage.clear();
     document.cookie = 'yourCookieName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     setIsProfileOpen(false);
     navigate('/login');

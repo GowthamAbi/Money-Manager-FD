@@ -8,12 +8,11 @@ const ExpenseForm = () => {
   const [category, setCategory] = useState("select");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
-  const [expenses, setExpenses] = useState([]); // ✅ Added state to store expenses
+  const [expenses, setExpenses] = useState([]); 
   const navigate = useNavigate();
 
   const categories = ["select", "Groceries", "Entertainment", "Utilities", "Rent", "Other"];
 
-  // ✅ Check for authentication token on mount
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -22,7 +21,6 @@ const ExpenseForm = () => {
     }
   }, [navigate]);
 
-  // ✅ Fetch Expenses (Updated List)
   const fetchExpenses = async () => {
     try {
       const token = localStorage.getItem("authToken");
@@ -43,12 +41,10 @@ const ExpenseForm = () => {
     }
   };
 
-  // ✅ Fetch expenses on mount
   useEffect(() => {
     fetchExpenses();
   }, []);
 
-  // ✅ Handle Form Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -81,7 +77,6 @@ const ExpenseForm = () => {
         setDescription("");
         setError("");
 
-        // ✅ Update UI with new expense
         setExpenses([...expenses, response.data]);
       }
     } catch (err) {
@@ -149,7 +144,6 @@ const ExpenseForm = () => {
         </button>
       </form>
 
-      {/* ✅ Display Added Expenses */}
       {expenses.length > 0 && (
         <div className="mt-6">
           <h3 className="text-xl font-semibold text-center">Recent Expenses</h3>

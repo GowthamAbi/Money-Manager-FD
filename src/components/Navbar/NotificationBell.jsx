@@ -6,7 +6,7 @@ const NotificationBell = () => {
     const [showDropdown, setShowDropdown] = useState(false);
     const notificationRef = useRef();
 
-    // ✅ Fetch financial data from separate APIs
+    //  Fetch financial data from separate APIs
     const fetchFinancialData = useCallback(async () => {
         try {
             const token = localStorage.getItem("authToken");
@@ -28,7 +28,7 @@ const NotificationBell = () => {
         } catch (error) {
             console.error("❌ Error fetching financial data:", error.response ? error.response.data : error.message);
 
-            // ✅ Handle unauthorized token (redirect to login)
+            //  Handle unauthorized token (redirect to login)
             if (error.response?.status === 401) {
                 localStorage.removeItem("authToken");
                 window.location.href = "/login"; 
@@ -36,11 +36,11 @@ const NotificationBell = () => {
         }
     }, []);
 
-    // ✅ Runs once when component mounts
+    //  Runs once when component mounts
     useEffect(() => {
         fetchFinancialData();
 
-        // ✅ Close notifications when clicking outside
+        //  Close notifications when clicking outside
         const handleClickOutside = (event) => {
             if (notificationRef.current && !notificationRef.current.contains(event.target)) {
                 setShowDropdown(false);
@@ -51,23 +51,23 @@ const NotificationBell = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [fetchFinancialData]);
 
-    // ✅ Process financial status and create notifications
+    //  Process financial status and create notifications
     const checkFinancialStatus = (incomeArray, expenseArray, budgetArray) => {
         let totalIncome = 0;
         let totalExpense = 0;
         let totalBudget = 0;
 
-        // ✅ Sum up all income amounts
+        //  Sum up all income amounts
         if (Array.isArray(incomeArray) && incomeArray.length > 0) {
             totalIncome = incomeArray.reduce((sum, item) => sum + (item.amount || 0), 0);
         }
 
-        // ✅ Sum up all expense amounts
+        //  Sum up all expense amounts
         if (Array.isArray(expenseArray) && expenseArray.length > 0) {
             totalExpense = expenseArray.reduce((sum, item) => sum + (item.amount || 0), 0);
         }
 
-        // ✅ Extract the total budget (assuming a single budget entry)
+        //  Extract the total budget (assuming a single budget entry)
         if (Array.isArray(budgetArray) && budgetArray.length > 0) {
             totalBudget = budgetArray[0].amount || 0;
         }
@@ -92,7 +92,7 @@ const NotificationBell = () => {
         setNotifications(newNotifications);
     };
 
-    // ✅ Clear notifications
+    // Clear notifications
     const clearNotifications = () => {
         setNotifications([]);
         setShowDropdown(false);
@@ -100,7 +100,7 @@ const NotificationBell = () => {
 
     return (
         <div className="relative" ref={notificationRef}>
-            {/* ✅ Notification Bell Button */}
+            {/* Notification Bell Button */}
             <button className="p-2 bg-gray-200 rounded-full relative" onClick={() => setShowDropdown(!showDropdown)}>
                 🔔
                 {notifications.length > 0 && (
@@ -110,7 +110,7 @@ const NotificationBell = () => {
                 )}
             </button>
 
-            {/* ✅ Notification Dropdown */}
+            {/*  Notification Dropdown */}
             {showDropdown && notifications.length > 0 && (
                 <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-md p-2 z-50">
                     {notifications.map((note, index) => (

@@ -17,7 +17,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
 
   // period filter
-  const [period, setPeriod] = useState("monthly"); // weekly | monthly | yearly
+  const [period, setPeriod] = useState("monthly"); 
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -28,7 +28,7 @@ const Dashboard = () => {
     fetchDashboardData(token);
   }, [period]);
 
-  // 🔹 calculate start date based on period
+  //  calculate start date based on period
   const getStartDate = () => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
