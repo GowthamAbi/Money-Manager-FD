@@ -60,7 +60,6 @@ const Dashboard = () => {
         }),
       ]);
 
-      // ✅ FILTER USING ACTUAL INPUT DATE (NOT createdAt)
       const filteredIncome = incomeRes.data.filter((i) => {
         if (!i.date) return false;
         const d = new Date(i.date);
