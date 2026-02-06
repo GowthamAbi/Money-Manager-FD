@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   PieChart,
   Pie,
@@ -14,11 +14,10 @@ const COLORS = ["#4CAF50", "#F44336"];
 const Dashboard = () => {
   const [incomeData, setIncomeData] = useState([]);
   const [expenseData, setExpenseData] = useState([]);
-  const [totals, setTotals] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // period
+  // period filter
   const [period, setPeriod] = useState("monthly");
 
   // advanced filters
@@ -27,6 +26,7 @@ const Dashboard = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
+  // 🔐 Auth + fetch data
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -36,7 +36,7 @@ const Dashboard = () => {
     fetchDashboardData(token);
   }, [period]);
 
-  //  get start date based on period
+  // 🔹 calculate start date
   const getStartDate = () => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
@@ -48,6 +48,7 @@ const Dashboard = () => {
     return now;
   };
 
+  // 🔹 API call
   const fetchDashboardData = async (token) => {
     try {
       setLoading(true);
@@ -82,9 +83,9 @@ const Dashboard = () => {
     }
   };
 
-  //  apply advanced filters
-  const applyAdvancedFilters = (data) =>
-    data.filter((item) => {
+  // ✅ ADVANCED FILTERS (memoized — NO infinite loop)
+  const filteredIncome = useMemo(() => {
+    return incomeData.filter((item) => {
       if (category !== "all" && item.category !== category) return false;
       if (division !== "all" && item.division !== division) return false;
 
@@ -94,33 +95,38 @@ const Dashboard = () => {
 
       return true;
     });
+  }, [incomeData, category, division, fromDate, toDate]);
 
-  const filteredIncome = applyAdvancedFilters(incomeData);
-  const filteredExpense = applyAdvancedFilters(expenseData);
+  const filteredExpense = useMemo(() => {
+    return expenseData.filter((item) => {
+      if (category !== "all" && item.category !== category) return false;
+      if (division !== "all" && item.division !== division) return false;
 
-  useEffect(() => {
-    const incomeTotal = filteredIncome.reduce(
-      (sum, item) => sum + item.amount,
-      0
-    );
-    const expenseTotal = filteredExpense.reduce(
-      (sum, item) => sum + item.amount,
-      0
-    );
+      const d = new Date(item.date);
+      if (fromDate && d < new Date(fromDate)) return false;
+      if (toDate && d > new Date(toDate)) return false;
 
-    setTotals({
-      income: incomeTotal,
-      expense: expenseTotal,
-      balance: incomeTotal - expenseTotal,
+      return true;
     });
-  }, [filteredIncome, filteredExpense]);
+  }, [expenseData, category, division, fromDate, toDate]);
 
-  const chartData = totals
-    ? [
-        { name: "Income", value: totals.income },
-        { name: "Expense", value: totals.expense },
-      ]
-    : [];
+  // ✅ DERIVED TOTALS (NO state, NO useEffect)
+  const incomeTotal = filteredIncome.reduce(
+    (sum, item) => sum + item.amount,
+    0
+  );
+
+  const expenseTotal = filteredExpense.reduce(
+    (sum, item) => sum + item.amount,
+    0
+  );
+
+  const balance = incomeTotal - expenseTotal;
+
+  const chartData = [
+    { name: "Income", value: incomeTotal },
+    { name: "Expense", value: expenseTotal },
+  ];
 
   return (
     <div className="max-w-5xl mx-auto p-6 bg-white shadow rounded">
@@ -128,7 +134,7 @@ const Dashboard = () => {
         Financial Dashboard
       </h2>
 
-      {/* Period Dropdown */}
+      {/* Period Filter */}
       <div className="flex justify-center mb-4">
         <select
           className="border p-2 rounded"
@@ -182,7 +188,7 @@ const Dashboard = () => {
 
       {error && <p className="text-red-500 text-center">{error}</p>}
 
-      {loading || !totals ? (
+      {loading ? (
         <p className="text-center">Loading...</p>
       ) : (
         <>
@@ -190,18 +196,9 @@ const Dashboard = () => {
           <div className="bg-gray-100 p-4 rounded mb-6">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
-                <Pie
-                  data={chartData}
-                  dataKey="value"
-                  nameKey="name"
-                  outerRadius={100}
-                  label
-                >
-                  {chartData.map((_, index) => (
-                    <Cell
-                      key={index}
-                      fill={COLORS[index % COLORS.length]}
-                    />
+                <Pie data={chartData} dataKey="value" outerRadius={100} label>
+                  {chartData.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i]} />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -213,21 +210,15 @@ const Dashboard = () => {
           <div className="bg-gray-100 p-6 rounded text-center">
             <p>
               Income:{" "}
-              <strong className="text-green-600">
-                ₹{totals.income}
-              </strong>
+              <strong className="text-green-600">₹{incomeTotal}</strong>
             </p>
             <p>
               Expense:{" "}
-              <strong className="text-red-600">
-                ₹{totals.expense}
-              </strong>
+              <strong className="text-red-600">₹{expenseTotal}</strong>
             </p>
             <p>
               Balance:{" "}
-              <strong className="text-blue-600">
-                ₹{totals.balance}
-              </strong>
+              <strong className="text-blue-600">₹{balance}</strong>
             </p>
           </div>
         </>

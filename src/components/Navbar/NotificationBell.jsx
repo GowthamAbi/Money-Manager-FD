@@ -21,7 +21,7 @@ const NotificationBell = () => {
             const [incomeRes, expenseRes, budgetRes] = await Promise.all([
                 api.get("/api/income", { headers: { Authorization: `Bearer ${token}` } }),
                 api.get("/api/expenses", { headers: { Authorization: `Bearer ${token}` } }),
-                api.get("/api/budgets", { headers: { Authorization: `Bearer ${token}` } })
+                
             ]);
 
             checkFinancialStatus(incomeRes.data, expenseRes.data, budgetRes.data);
