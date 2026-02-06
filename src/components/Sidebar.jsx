@@ -55,7 +55,7 @@ const Sidebar = () => {
             <ul className="pl-6 space-y-1">
               <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={() => navigate("/expense/recording")}>Expense Form</li>
               <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={() => navigate("/expense/list")}>List</li>
-              <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={() => navigate("/expense/chart")}>Chart</li>
+              
 
             </ul>
           )}
@@ -73,7 +73,6 @@ const Sidebar = () => {
             <ul className="pl-6 space-y-1">
               <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={() => navigate("/income/form")}>Form</li>
               <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={() => navigate("/income/list")}>List</li>
-              <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={() => navigate("/income/report")}>Report</li>
             </ul>
           )}
         </li>

@@ -26,7 +26,7 @@ const Dashboard = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  // 🔐 Auth + fetch data
+  // Auth + fetch data
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -83,7 +83,7 @@ const Dashboard = () => {
     }
   };
 
-  // ✅ ADVANCED FILTERS (memoized — NO infinite loop)
+  //  ADVANCED FILTERS (memoized — NO infinite loop)
   const filteredIncome = useMemo(() => {
     return incomeData.filter((item) => {
       if (category !== "all" && item.category !== category) return false;
@@ -110,7 +110,7 @@ const Dashboard = () => {
     });
   }, [expenseData, category, division, fromDate, toDate]);
 
-  // ✅ DERIVED TOTALS (NO state, NO useEffect)
+  // DERIVED TOTALS (NO state, NO useEffect)
   const incomeTotal = filteredIncome.reduce(
     (sum, item) => sum + item.amount,
     0
